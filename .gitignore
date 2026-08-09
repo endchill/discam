@@ -2,3 +2,4 @@ node_modules/
 logs/
 avatars/
 src/.env
+settings.json
