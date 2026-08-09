@@ -1,0 +1,6 @@
+{
+    "outputChannelId": "YOUR_TEXT_CHANNEL_ID",
+    "defaultTheme": "screenshot",
+    "avatarSize": 2048,
+    "avatarFormat": "png"
+}
