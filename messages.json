@@ -1,0 +1,4 @@
+{
+    "helpMessage": "\\`{binary} -h\\`: to show this menu\n\\`{binary} peak\\`: to generate a message/image with the peak of the day\n\\`{binary} -o peak\\`: to generate a message/image with the highest peak\n\\`{binary} -c peak\\`: to generate a message/image with the current people\n\\`{binary} -t <theme_name> peak\\`: to generate a message/image with a specific theme\n\\`{binary} -t <theme_name> -c peak\\`: to generate a message/image with a specific theme with the current people\n\\`{binary} -t <theme_name> -o peak\\`: to generate a message/image with a specific theme with the highest peak",
+    "errorMessage": "Error executing command: {error}"
+}

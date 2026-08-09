@@ -1,0 +1,13 @@
+{
+    "textSize": 16,
+    "textFont": "gg sans Medium",
+    "avatarSize": 32,
+    "avatarTextSpacing": 8,
+    "leftPadding": 16,
+    "topPadding": 16,
+    "bottomPadding": 0,
+    "rightPadding": 16,
+    "itemSpacing": 16,
+    "backgroundColor": "#2c2d32",
+    "textColor": "#9b9ca3"
+}

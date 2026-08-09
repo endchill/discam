@@ -1,0 +1,6 @@
+node_modules/
+logs/
+avatars/
+src/.env
+.bun
+bun.lock

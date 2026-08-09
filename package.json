@@ -1,0 +1,27 @@
+{
+    "name": "discam",
+    "version": "1.0.0",
+    "description": "A Discord bot that tracks the users data in a voice channel and send information based on that data and send it in the end of the day in a text channel",
+    "keywords": [
+        "discord",
+        "bot"
+    ],
+    "license": "MIT",
+    "author": "endchill",
+    "type": "module",
+    "main": "src/index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "discord.js": "^14.25.1",
+        "fs": "^0.0.1-security"
+    },
+    "devDependencies": {
+        "@types/bun": "latest"
+    },
+    "private": true,
+    "peerDependencies": {
+        "typescript": "^5"
+    }
+}
