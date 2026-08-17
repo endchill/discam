@@ -1,0 +1,68 @@
+import fsp from "node:fs/promises";
+import { dirname, join } from "node:path";
+import { logger } from "./logger.js";
+
+const rootDir = dirname(import.meta.dir);
+const avatarsDir = join(rootDir, "avatars");
+const dataDir = join(rootDir, "data");
+const settings = await Bun.file(join(rootDir, "settings.json")).json();
+
+export class User {
+    constructor(member) {
+        this.id = member.id;
+        this.username = member.displayName;
+        this.displayName = member.nickname;
+    }
+}
+
+export async function isExists(path) {
+    try {
+        await fsp.access(path);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+export async function downloadAvatarByMember(
+    member,
+    userAvatarFallback = true,
+) {
+    const userAvatarDir = join(avatarsDir, member.id);
+    if (!(await isExists(userAvatarDir))) {
+        await fsp.mkdir(userAvatarDir, { recursive: true });
+    }
+
+    if (userAvatarFallback) {
+        const avatarHash = member.avatar ?? member.user.avatar;
+    } else {
+        const avatarHash = member.avatar;
+    }
+    const format = settings.avatarFormat;
+    const filename = `${avatarHash}.${format}`;
+    const filepath = join(userAvatarDir, filename);
+
+    if (await isExists(filepath)) {
+        logger.info(
+            "",
+            `Skipped fetching ${member.user.id} "${member.user.username}" avatar, already exists`,
+        );
+    } else {
+        logger.info(
+            "fetching: ",
+            `${member.user.id} "${member.user.username}" avatar`,
+        );
+        const avatar = await fetch(
+            member.displayAvatarURL({ size: settings.avatarSize, extension: format }),
+        );
+        const arrayBuffer = await avatar.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        await fsp.writeFile(filepath, buffer);
+        logger.info(
+            "",
+            `Saved ${member.user.id} "${member.user.username}" avatar as ${filename} at ${userAvatarDir}`,
+        );
+    }
+}
+
+export function updateList() { }

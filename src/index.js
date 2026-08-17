@@ -1,13 +1,20 @@
-import fs from "node:fs"
-import fsp from "node:fs/promises"
-import { Client, GatewayIntentBits } from "discord.js"
-import { logger } from "./logger.js"
+import fsp from "node:fs/promises";
+import { Client, GatewayIntentBits } from "discord.js";
+import { cron } from "croner";
+import { dirname, join } from "node:path";
+import { isExists, downloadAvatarByMember } from "./functions.js";
+import { logger } from "./logger.js";
 
-const token = process.env.TOKEN
-const messages = await Bun.file("../messages.json").json()
-const settings = await Bun.file("../settings.json").json()
-let date = new Date().toLocaleDateString("en-CA").replace(/-/g, ".")
-await fsp.mkdir(`../avatars/${date}`, { recursive: true })
+const token = process.env.TOKEN;
+const rootDir = dirname(import.meta.dir);
+const avatarsDir = join(rootDir, "avatars");
+const messages = await Bun.file(join(rootDir, "messages.json")).json();
+const settings = await Bun.file(join(rootDir, "settings.json")).json();
+const timezone = settings.timezone === "auto" ? Intl.DateTimeFormat().resolvedOptions().timeZone : settings.timezone;
+
+if (!(await isExists(avatarsDir))) {
+    await fsp.mkdir(avatarsDir, { recursive: true });
+}
 
 const client = new Client({
     intents: [
@@ -15,80 +22,84 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
-        GatewayIntentBits.GuildVoiceStates
-    ]
-})
+        GatewayIntentBits.GuildVoiceStates,
+    ],
+});
 
-async function downloadAvatarByMember(member) {
-    const format = member.avatar?.startsWith("a_") ? "gif" : settings.avatarFormat
-    const filename = `${member.avatar}.${format}`
-    logger.info("fetching: ", `Downloading ${member.user.id} "${member.user.username}" avatar.`)
-    const avatar = await fetch(member.displayAvatarURL({ size: settings.avatarSize, extension: format }))
-    const arrayBuffer = await avatar.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    await fsp.writeFileSync(filepath, buffer)
-    await fsp.symlink(`../avatars/${filename}`, `../avatars/${date}/${filename}`)
-}
+new cron("0 0 * * *", { timezone: timezone }, () => { });
 
 client.login(token).catch((error) => {
-    logger.error("login: ", error.message)
-    process.exit(1)
-})
+    logger.error("login: ", error.message);
+    process.exit(1);
+});
 
 client.on("error", (error) => {
-    logger.error("", error.message)
-})
+    logger.error("", error.message);
+});
 
 client.on("clientReady", (c) => {
-    logger.info("on clientReady: ", `${c.user.tag}`)
+    logger.info("on clientReady: ", `${c.user.tag}`);
     // const outputChannel = client.channels.cache.get(settings.outputChannelId)
-})
+});
 
-client.on("guildMemberUpdate", (oldMember, newMember) => {})
+client.on("guildMemberUpdate", (oldMember, newMember) => { });
 
 client.on("messageCreate", (message) => {
-    if (!message.author.bot && /^(\/usr\/bin\/discam)|^(\/bin\/discam)|^(discam)/.test(message)) {
-        if (message.content) {}
-        const args = message.content.trim().split(/\s+/)
+    if (
+        !message.author.bot &&
+        /^(\/usr\/bin\/discam)|^(\/bin\/discam)|^(discam)/.test(message)
+    ) {
+        if (message.content) {
+        }
+        const args = message.content.trim().split(/\s+/);
         const command = {
             binary: args[0],
             options: {
-                something: null,
-                theme: settings.defaultTheme
+                action: null,
+                theme: settings.defaultTheme,
+                useRulesColors: settings.isRulesColor,
             },
-            action: null
-        }
+            action: null,
+        };
 
         for (let i = 1; i < args.length; i++) {
-            const arg = args[i]
+            const arg = args[i];
             if (/=/.test(arg)) {
                 switch (arg) {
+                    case arg.startsWith("-t"):
                     case arg.startsWith("--theme"):
-                        const [, value] = arg.slice(2).split("=")
-                        command.options.theme = value
-                        break
+                        if (i + 1 < args.length) {
+                            command.options.theme = args[++i];
+                        }
+                        break;
+                    case arg.startsWith("-r"):
+                    case arg.startsWith("--use-rules-color"):
+                        if (i + 1 < args.length) {
+                            command.options.useRulesColors = args[++i];
+                        }
+                        break;
                 }
             } else {
                 switch (arg) {
+                    case "-h":
                     case "--help":
-                        command.action = "help"
-                        break
+                        command.action = "help";
+                        break;
+                    case "-o":
                     case "--overall":
-                        command.options.something = "overall"
-                        break
+                        command.options.action = "overall";
+                        break;
+                    case "-c":
                     case "--current":
-                        command.options.something = "current"
-                        break
+                        command.options.action = "current";
+                        break;
                     case "peak":
-                        command.action = "peak"
-                        break
+                        command.action = "peak";
+                        break;
+                    // default:
                 }
             }
         }
-        console.log(command)
+        console.log(command);
     }
-})
-
-client.on('voiceStateUpdate', (oldState, newState) => {
-    logger.info("trigger: ", `Detected a change of ${newState.channel.id} state.`)
-})
+});

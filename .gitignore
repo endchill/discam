@@ -1,5 +1,5 @@
 node_modules/
 logs/
 avatars/
+data/
 src/.env
-settings.json

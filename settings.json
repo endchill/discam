@@ -1,6 +1,8 @@
 {
-    "outputChannelId": "YOUR_TEXT_CHANNEL_ID",
+    "outputChannelId": "<id>",
     "defaultTheme": "screenshot",
     "avatarSize": 2048,
-    "avatarFormat": "png"
+    "avatarFormat": "png",
+    "timezone": "auto",
+    "isRulesColor": true
 }
