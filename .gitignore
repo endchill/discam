@@ -3,3 +3,6 @@ logs/
 avatars/
 data/
 src/.env
+.nextcloudsync.log
+.sync_e26737a1e867.db
+.sync_e26737a1e867.db-wal
