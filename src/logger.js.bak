@@ -1,6 +1,6 @@
 import { appendFileSync } from "node:fs";
 import { join } from "node:path";
-import { logsDir } from "./index.js"
+import { logsDir } from "index.js"
 
 // Usage:
 // logger.<log_type>("<message_title>", <message>)

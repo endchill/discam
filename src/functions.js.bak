@@ -1,7 +1,7 @@
 import fsp from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { logger } from "./logger.js";
-import { avatarsDir, dataDir, settings } from "./index.js"
+import { avatarsDir, dataDir, settings } from "index.js"
 
 // const rootDir = dirname(import.meta.dir);
 // const avatarsDir = join(rootDir, "avatars");
